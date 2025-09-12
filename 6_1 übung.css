@@ -1,0 +1,50 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+.header {
+    background-color: yellow;
+    width: 100vw;
+    height: 10vw;
+    margin-top: 50px ;
+}
+
+.boxgroup {
+    display: flex;
+    gap: 300px;
+    padding: 2.5% 0% 0% 12%;
+}
+.box {
+    background-color: green;
+    width: 80px;
+    height: 80px;
+}
+
+.content {
+    background-color: lightblue;
+    margin: 20px;
+    width: 400px;
+    height: 300px;
+    padding: 20px;
+    position: relative;
+}
+
+.orange {
+    background-color: orange;
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+
+.purple {
+    position: absolute;
+    background-color: purple;
+    width: 180px;
+    height: 180px;
+    right: 0;
+    top: 0;
+}
