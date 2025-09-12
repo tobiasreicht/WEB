@@ -1,0 +1,47 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+.bluebox {
+    background-color: lightblue;
+    height: 400px;
+    width: 200px;
+    margin: 80px;
+    position: relative;
+}
+
+.black {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 80px;
+    height: 80px;
+    background-color: black;
+}
+
+.green {
+    position: absolute;
+    background-color: green;
+    bottom: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.footer {
+    width: 90vw;
+    height: 150px;
+    margin: 150px auto 20px auto; /* zentriert den Footer horizontal */
+    border: 2px solid black;
+    display: flex;
+    justify-content: center; /* horizontal zentrieren */
+    align-items: center;     /* vertikal zentrieren */
+    gap: 300px;               /* Abstand zwischen den Boxen */
+}
+
+.box {
+    width: 40px;
+    height: 30px;
+    background-color: green;
+}
+
