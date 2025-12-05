@@ -3,6 +3,10 @@ import React, { useState } from "react";
 export default function Counter() {
   const [count, setCount] = useState(0);
 
+  if (count < 0) {
+    setCount(0);
+  }
+
   return (
     <div className="max-w-sm w-full bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl p-4 shadow-lg flex flex-col items-center gap-4">
       <h3 className="text-lg font-semibold text-slate-900">Counter</h3>
