@@ -5,6 +5,7 @@ import List from "./components/List";
 import Counter from "./components/Counter";
 import Light from "./components/Light";
 import Todo from "./components/todo";
+import Person from "./components/Person";
 
 export default function App() {
   return (
@@ -21,8 +22,8 @@ export default function App() {
       <List title="tolle liste" items={["kästchen", "noch mehr kästchen", "noch viel mehr kästchen😏"]}/>
       <Counter />
       <Light />
-
       <Todo /> 
+      <Person  />
     </div>
   );
 }
