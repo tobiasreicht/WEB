@@ -8,8 +8,12 @@ import Light from "./components/Light";
 export default function App() {
   return (
     <div className=" p-4 space-y-4">
-      <Button title="button1" />
-      <Button title="button2" />
+      <Button title="button1" onPress={()=> {
+        alert('Button clicked‼️');
+      }}/>
+      <Button title="button2" onPress={()=> {
+        alert('Button clicked‼️');
+      }}/>
 
       <Card name="jan" title="Jan von Keckeis" bio="jan ist ein sehr zahmhafter mensch" />
 

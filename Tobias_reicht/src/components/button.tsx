@@ -1,12 +1,12 @@
 type Props = {
   title: string;
-  onClick?: () => void;
+  onPress?: () => void;
 };
 
-export default function Button({ title, onClick }: Props) {
+export default function Button({ title, onPress }: Props) {
   return (
     <button
-      onClick={onClick}
+     
       className="
         px-6 py-3 
         rounded-xl 
@@ -20,7 +20,10 @@ export default function Button({ title, onClick }: Props) {
         select-none
         m-10
       "
-    >
+    
+
+       onClick={onPress}
+        >
       {title}
     </button>
   );
