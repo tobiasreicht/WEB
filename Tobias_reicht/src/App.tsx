@@ -6,11 +6,14 @@ import Counter from "./components/Counter";
 import Light from "./components/Light";
 import Todo from "./components/todo";
 import Person from "./components/Person";
+import TodoCard from "./components/TodoCard";
+import { demoTodos } from "./testdata";
+import FilterTodo from "./components/FilterTodo";
 
 export default function App() {
   return (
     <div className=" p-4 space-y-4">
-      <Button title="button1" onPress={()=> {
+      {/* <Button title="button1" onPress={()=> {
         alert('Button clicked‼️');
       }}/>
       <Button title="button2" onPress={()=> {
@@ -23,7 +26,8 @@ export default function App() {
       <Counter />
       <Light />
       <Todo /> 
-      <Person  />
+      <Person  /> */}
+      <FilterTodo initialTodos={demoTodos} />
     </div>
   );
 }
