@@ -21,6 +21,9 @@ const TrafficLightGrid: React.FC = () => {
   const [lights, setLights] = useState<ApiLight[]>(initialLights);
   const [selected, setSelected] = useState<ApiLight | null>(null);
   const [stats, setStats] = useState<{ label: string; value: number }[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [timeRange, setTimeRange] = useState<"24h" | "7d" | "30d">("24h");
+  const cacheRef = React.useRef<Record<string, Record<"24h" | "7d" | "30d", { label: string; value: number }[]>>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -110,12 +113,76 @@ const TrafficLightGrid: React.FC = () => {
     return arr;
   };
 
+  const generate7dStats = (id: string) => {
+    const now = new Date();
+    const arr: { label: string; value: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const label = days[d.getDay()];
+      const base = (id.charCodeAt(0) % 5) * 20;
+      const value = Math.max(0, Math.round(base + Math.random() * 120 + (Math.sin(i) * 20)));
+      arr.push({ label, value });
+    }
+    return arr;
+  };
+
+  const generate30dStats = (id: string) => {
+    const now = new Date();
+    const arr: { label: string; value: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const label = (d.getDate()).toString();
+      const base = (id.charCodeAt(0) % 5) * 20;
+      const value = Math.max(0, Math.round(base + Math.random() * 140 + (Math.sin(i * 0.2) * 30)));
+      arr.push({ label, value });
+    }
+    return arr;
+  };
+
+  const calculateOverallAverage = (): number => {
+    const allValues: number[] = [];
+    Object.values(cacheRef.current).forEach((ranges) => {
+      Object.values(ranges).forEach((data) => {
+        data.forEach((d) => allValues.push(d.value));
+      });
+    });
+    if (allValues.length === 0) return 0;
+    return Math.round(allValues.reduce((s, v) => s + v, 0) / allValues.length);
+  };
+
   const onLightClick = (id?: string) => {
     if (!id) return;
+    setLoading(true);
     const light = lights.find((l) => l.id === id) || { id, state: "red" as any };
     setSelected(light);
-    const s = generate24hStats(id);
-    setStats(s);
+    
+    // Simulate slight delay to show loading state
+    setTimeout(() => {
+      // Initialize cache for this light if needed
+      if (!cacheRef.current[id]) {
+        cacheRef.current[id] = {
+          "24h": generate24hStats(id),
+          "7d": generate7dStats(id),
+          "30d": generate30dStats(id),
+        };
+      }
+      setStats(cacheRef.current[id][timeRange]);
+      setLoading(false);
+    }, 300);
+  };
+
+  const onTimeRangeChange = (range: "24h" | "7d" | "30d") => {
+    setTimeRange(range);
+    if (selected && cacheRef.current[selected.id]) {
+      setStats(cacheRef.current[selected.id][range]);
+    }
+  };
+
+  const onReset = () => {
+    setSelected(null);
+    setStats(null);
+    setLoading(false);
   };
 
   return (
@@ -128,9 +195,15 @@ const TrafficLightGrid: React.FC = () => {
               <h2 className="text-lg font-semibold text-slate-700 mb-4">Traffic Lights</h2>
               <div className="grid grid-cols-2 gap-6">
                 {lights.map((l) => (
-                  <div key={l.id} className="flex flex-col items-center">
+                  <div key={l.id} className={`flex flex-col items-center p-4 rounded-lg border-2 transition-all ${
+                    selected?.id === l.id 
+                      ? "border-blue-500 bg-blue-50" 
+                      : "border-transparent bg-transparent hover:bg-slate-50"
+                  }`}>
                     <TrafficLight id={l.id} state={l.state} onClick={onLightClick} />
-                    <div className="mt-2 text-sm text-slate-500">{l.id}</div>
+                    <div className={`mt-2 text-sm font-medium ${
+                      selected?.id === l.id ? "text-blue-700" : "text-slate-500"
+                    }`}>{l.id}</div>
                   </div>
                 ))}
               </div>
@@ -138,16 +211,47 @@ const TrafficLightGrid: React.FC = () => {
 
             {/* Right: chart panel */}
             <aside className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-md font-medium text-slate-700">Traffic — Last 24h</h3>
-                <div className="text-xs text-slate-400">Hourly</div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-md font-medium text-slate-700">Traffic — {selected ? `📋 ${selected.id}` : "Analytics"}</h3>
+                <div className="flex gap-1">
+                  {(["24h", "7d", "30d"] as const).map((range) => (
+                    <button
+                      key={range}
+                      onClick={() => onTimeRangeChange(range)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded transition-colors ${
+                        timeRange === range
+                          ? "bg-blue-500 text-white"
+                          : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                      }`}
+                    >
+                      {range}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="bg-slate-50 p-4 rounded-lg">
-                <TrafficChart data={stats} />
+                <TrafficChart 
+                  data={stats} 
+                  lightId={selected?.id} 
+                  lightState={selected?.state} 
+                  loading={loading}
+                  overallAverage={calculateOverallAverage()}
+                  timeRange={timeRange}
+                />
               </div>
 
-              <div className="mt-4 text-sm text-slate-500">Click a light to load its data.</div>
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-sm text-slate-500">Click a light to load its data.</div>
+                {selected && (
+                  <button
+                    onClick={onReset}
+                    className="px-3 py-1.5 text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md transition-colors"
+                  >
+                    ← Back
+                  </button>
+                )}
+              </div>
             </aside>
           </div>
         </div>
